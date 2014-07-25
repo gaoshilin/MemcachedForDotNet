@@ -1,3 +1,4 @@
+`By.Alex`
 ##Windows下Memcached在.Net程序中的实际运用(从Memcached库的编译到实际项目运用)
 >1、**一点基础概念**
 
@@ -5,9 +6,7 @@
 
 >3、**Memcached的服务器安装(windows server)**
 
->4、**基本命令介绍**
-
->5、**在web项目中实战**
+>4、**在web项目中实战**
 
 
 
@@ -94,22 +93,20 @@ Memcached有很多语言的客户端实现。本次我们使用的是EnyimMemcac
 
 > **` bool Remove`**：用于删除缓存中的指定key值。返回true表示成功、false表示失败
 
-> **` void FlushAll`**：让cache中的所有item都失效、但是未清除、但是我们也没法获取。不过可以从itemscount中看到任然有那么多个item在cache中。。
-
-> **`long Decrement`**：
-
-> **`long Increment`**：
-
-> **`object get`**：取回一个key对应的值。如果没找到key则返回null。
-
-> **`T get<T>`**：取回一个T对象。如果没找到key则返回null
-
-> **`bool CheckAndSet`**：检查并更新key对应的值。首先会检查key的casUnique值、如果这个值和本客户端最后一次获取该key的casUnique不同、则返回false。不进行更新。否则进行值的更新。这个方法是为了解决在多线程下、由于命令执行队列的非原子性可能会导致你获取该key之后、其他线程同时获取并修改了该key、而在你提交更新的时候可能会把其他线程提交的数据覆盖掉。因此或先检查获取的casUnique的值和cache中该key的是否一致。不一致则表明有其他线程已经操作过了需要你再次获取改key后重现提交修改。以保证不会弄脏缓存数据。CheckAndSet其实是`gets和cas`命令的结合使用。
+> **` void FlushAll`**：让cache中的所有item都失效、但是未清除、但是我们也无法在通过命令获取。不过可以从itemscount中看到任然有那么多个item在cache中。但此时状态已经标记为失效了。
 
 
-**4. 使用Enyim对缓存进行非常规数据类型的操作。**<br/>
 
-**5. 关于memcached的一些疑问补充说明**
+> **`★long Increment(string key, uint amount)和long Decrement(string key, uint amount)`**：在key存在的情况下、如果原来的key值不是一个`string`类型的数字时、此时会将原来的value值变为此时的amount对象。如果原来的值是一个`string`类型的数字的话。则会把该key的value修改为该key原来的`value + amount`的结果。`Enyim在此处对于数据类型的实现有一定的问题`。由于几乎不使用因此不再深入解释这个问题。这两个方法执行成功之后都会返回操作之后的value值。如果失败则返回数字`0`。key不存在的时候返回`-1`
+> 
+> **`object get`**：取回一个key对应的值。如果没找到key则返回null。这是我们用的最多的几个方法之一。根据key获取对应的值。也可以根据一个`IEnumerable<string>`获取多个key的值。最简单的就是直接使用一个`List<string>`来装多个key。把这个list传递进去即可，
+
+> **`T get<T>`**：取回一个T对象。如果没找到key则返回null。
+
+> **`bool CheckAndSet`**：检查并更新key对应的值。首先会检查key的casUnique值、如果这个值和本客户端最后一次获取该key的casUnique不同、则返回false，不进行更新。否则进行值的更新。这个方法是为了解决在多线程下、由于命令执行队列的非原子性可能会导致你获取该key之后、其他线程同时获取并修改了该key、而在你提交更新的时候可能会把其他线程提交的数据覆盖掉。因此或先检查获取的casUnique的值和cache中该key的是否一致。不一致则表明有其他线程已经操作过了需要你再次获取改key后重现提交修改。以保证不会弄脏缓存数据。CheckAndSet其实是`gets和cas`命令的结合使用。
+
+
+**关于memcached的一些疑问补充说明**
 >- **Memcached的相关操作是原子性的吗？**
 >>被发送的单个命令是原子性的。你同时发送`set`和`get`命令他们不会影响对方。他们会被串行化先后执行。多线程下也是如此。但是命令的序列却不是原子性的，因此你获取一个item之后在set回去时有可能会复写被其他进程set了的item.因此在`1.2.5`以后的版本有了`gets`和`cas`的高级命令来解决这个问题。<br/>
 
