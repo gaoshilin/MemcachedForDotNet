@@ -115,3 +115,9 @@ Memcached有很多语言的客户端实现。本次我们使用的是EnyimMemcac
 
 >- **Memcached的单个item的最大大小是？**<br/>
 >>答案是`1M`<br/>
+
+>- **特别说明——关于Memcached的集群和单点故障解决方案的说明**
+>>在windows下笔者未找到很好的解决办法。Memagent+livevent是在linux下的解决方案、在windows下并不实用。由于作为缓存服务器对于客户端来说无论是linux和windows都没有任何关系、唯一的问题在于部署和运维。笔者比较懒、就不再安装linux做测试了。大致查了一下、网上已经有很多文章介绍Memcached的集群部署了。再次不再赘述、本文只谈论Enyim在.net下的使用。
+[此文](http://www.cnblogs.com/happyday56/p/3461113.html)和[此文](http://blog.sina.com.cn/s/blog_493a845501013ei0.html)值得阅读
+
+**自此、Memcached在.Net中的使用就介绍到这里。我们不妨总结一下、在Memcached的.Net客户端Enyim来操作Memcached是一件很简单的事情。由于Enyim的高度封装、我能很方便的使用和控制我们的缓存数据。通过Enyim、我们可以将更多的精力投入的缓存存储的数据结构的设计中去、如何根据业务设计出符合项目实际运用的缓存数据结构才是我们的重点**
